@@ -1,7 +1,8 @@
 version: '3.6'
 services:
   gitlab-server:
-    image: 'gitlab/gitlab-ee:latest'
+    image: 'gitlab/gitlab-ce:latest'
+    container_name: gitlab-server
     restart: always
     hostname: 'gitlab.tyi.name'
     environment:
@@ -19,3 +20,19 @@ services:
       - '$GITLAB_HOME/gitlab-server/logs:/var/log/gitlab'
       - '$GITLAB_HOME/gitlab-server/data:/var/opt/gitlab'
     shm_size: '256m'
+    networks:
+      - gitlab
+  gitlab-runner:
+    image: gitlab/gitlab-runner:latest
+    container_name: gitlab-runner
+    restart: always
+    depends_on:
+      - gitlab-server
+    volumes:
+      - $GITLAB_HOME/gitlab-runner/config:/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - gitlab
+
+networks:
+  gitlab:
